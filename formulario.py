@@ -1,3 +1,4 @@
+import os
 import re
 import tkinter as tk
 from tkinter import messagebox
@@ -9,7 +10,7 @@ class FormularioRegistro:
     # 1. Ventana principal
     self.root = tk.Tk()
     self.root.title("Registro de Usuario")
-    self.root.geometry("460x620")
+    self.root.geometry("460x680")
     self.root.resizable(False, False)
 
     # 2. Variables de control de los datos
@@ -29,6 +30,7 @@ class FormularioRegistro:
     self.err_edad = tk.StringVar()
     self.err_genero = tk.StringVar()
     self.err_acepto = tk.StringVar()
+    self.estado_google = tk.StringVar()
 
     # 3. Contenedor principal
     self.frame = tk.Frame(self.root, padx=25, pady=15)
@@ -150,7 +152,7 @@ class FormularioRegistro:
         textvariable=self.err_acepto,
         fg="#d32f2f",
         font=("Arial", 8),
-    ).grid(row=14, column=0, columnspan=2, pady=(0, 10))
+    ).grid(row=14, column=0, columnspan=2, pady=(0, 8))
 
     # Accesibilidad: Enter envía el formulario
     self.chk_acepto.bind("<Return>", lambda event: self.validar_todo())
@@ -158,7 +160,7 @@ class FormularioRegistro:
 
     # --- Fila 15: Botones Registrar y Limpiar ---
     bf = tk.Frame(self.frame)
-    bf.grid(row=15, column=0, columnspan=2, pady=8)
+    bf.grid(row=15, column=0, columnspan=2, pady=6)
 
     tk.Button(
         bf, text="Registrar", command=self.validar_todo, width=15, bg="#c8e6c9"
@@ -166,6 +168,37 @@ class FormularioRegistro:
     tk.Button(
         bf, text="Limpiar", command=self.limpiar, width=15, bg="#f8bbd0"
     ).pack(side="left", padx=10)
+
+    # --- Fila 16 y 17: Botón con la imagen 'google.png' ---
+    ruta_img = os.path.join(os.path.dirname(__file__), "google.png")
+    self.img_google = tk.PhotoImage(file=ruta_img).subsample(2, 2)
+
+    self.btn_google = tk.Button(
+        self.frame,
+        image=self.img_google,
+        command=self.iniciar_con_google,
+        bd=0,
+        cursor="hand2",
+    )
+    self.btn_google.grid(row=16, column=0, columnspan=2, pady=(10, 2))
+
+    tk.Label(
+        self.frame,
+        textvariable=self.estado_google,
+        fg="#1565c0",
+        font=("Arial", 9, "bold"),
+    ).grid(row=17, column=0, columnspan=2)
+
+  def iniciar_con_google(self):
+    """Muestra 'Cargando...' durante 3 segundos y luego da la bienvenida."""
+    self.btn_google.config(state="disabled")
+    self.estado_google.set("Cargando...")
+    self.root.after(3000, self._bienvenida_google)
+
+  def _bienvenida_google(self):
+    self.btn_google.config(state="normal")
+    self.estado_google.set("")
+    messagebox.showinfo("Google", "¡Bienvenido Benjamín!")
 
   def validar_campo(self, campo):
     """Valida un campo individual y muestra su error específico debajo."""
@@ -268,7 +301,7 @@ class FormularioRegistro:
     self.genero.set("")
     self.acepto.set(False)
 
-    # Limpiar textos rojos
+    # Limpiar textos rojos y estado
     self.err_nombre.set("")
     self.err_email.set("")
     self.err_password.set("")
@@ -276,6 +309,7 @@ class FormularioRegistro:
     self.err_edad.set("")
     self.err_genero.set("")
     self.err_acepto.set("")
+    self.estado_google.set("")
 
     self.entry_nombre.focus_set()
 
